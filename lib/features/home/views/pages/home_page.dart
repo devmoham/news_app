@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:news_app/core/utils/route/app_routes.dart';
+import 'package:news_app/core/utils/theme/app_colors.dart';
 import 'package:news_app/core/views/widgets/app_bar_button.dart';
 import 'package:news_app/core/views/widgets/app_drawer.dart';
 import 'package:news_app/core/views/widgets/shimmer_effect_article_widget.dart';
 import 'package:news_app/features/home/home_cubit/home_cubit.dart';
+import 'package:news_app/features/home/views/pages/wifi_not_connected_page.dart';
 import 'package:news_app/features/home/views/widgets/custom_carousel_slider.dart';
 import 'package:news_app/features/home/views/widgets/recommendation_list_widget.dart';
 import 'package:news_app/features/home/views/widgets/shimmer_effect_carousel.dart';
@@ -23,12 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        final homeCubit = HomeCubit();
-        homeCubit.getTobHeadlines();
-        homeCubit.getRecommendationItems();
-        return homeCubit;
-      },
+      create: (context) => HomeCubit()..init(),
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -61,9 +59,15 @@ class _HomePageState extends State<HomePage> {
         ),
         drawer: const AppDrawer(),
         body: SafeArea(
-          child: Builder(builder: (context) {
+          child: BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
             final homeCubit = BlocProvider.of<HomeCubit>(context);
 
+            // Handle No Internet state
+            if (state is NoInternet) {
+              return WifiNotConnectedPage();
+            }
+
+            // Main Content
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -80,7 +84,8 @@ class _HomePageState extends State<HomePage> {
                         buildWhen: (previous, current) =>
                             current is TopHeadlinesLoading ||
                             current is TopHeadlinesLoaded ||
-                            current is TopHeadlinesError,
+                            current is TopHeadlinesError ||
+                            current is NoInternet,
                         builder: (context, state) {
                           if (state is TopHeadlinesLoading) {
                             return ListView.separated(
@@ -102,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                               child: Text(state.message),
                             );
                           } else {
-                            return const SizedBox.shrink();
+                            return const ShimmerEffectCarouselSlider();
                           }
                         },
                       ),
@@ -124,7 +129,17 @@ class _HomePageState extends State<HomePage> {
                               final isSelected =
                                   category == cubit.selectedCategory;
                               return GestureDetector(
-                                onTap: () => cubit.selectCategory(category),
+                                onTap: () {
+                                  if (state is NoInternet) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('No internet connection'),
+                                      ),
+                                    );
+                                  } else {
+                                    cubit.selectCategory(category);
+                                  }
+                                },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 8),

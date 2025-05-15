@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app/core/models/news_api_response.dart';
 import 'package:news_app/core/services/local_database_hive.dart';
@@ -9,8 +12,45 @@ part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitial());
+
   final homeServices = HomeServices();
   final localDatabaseHive = LocalDatabaseHive();
+  final Connectivity _connectivity = Connectivity();
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+
+
+  // Initialize cubit: check connectivity and fetch data
+  void init() {
+    _checkConnectivityAndFetch();
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((results) {
+      if (results.contains(ConnectivityResult.wifi) || results.contains(ConnectivityResult.mobile)) {
+        _fetchData();
+      } else {
+        emit(NoInternet());
+      }
+    });
+  }
+
+  // Check connectivity and fetch data if connected
+  Future<void> _checkConnectivityAndFetch() async {
+    final results = await _connectivity.checkConnectivity();
+    if (results.contains(ConnectivityResult.wifi) || results.contains(ConnectivityResult.mobile)) {
+      _fetchData();
+    } else {
+      emit(NoInternet());
+    }
+  }
+
+  // Fetch top headlines and recommendations
+  void _fetchData() {
+    getTobHeadlines();
+    getRecommendationItems();
+  }
+
+
+
+
+
 
   String selectedCategory = 'general';
   final List<String> categories = [
@@ -77,4 +117,20 @@ class HomeCubit extends Cubit<HomeState> {
 
     return favorites.map((e) => e as Article).toList();
   }
+
+
+
+  // Retry fetching data
+  void retry() {
+    _checkConnectivityAndFetch();
+  }
+
+  @override
+  Future<void> close() {
+    _connectivitySubscription?.cancel();
+    return super.close();
+  }
+
+
+
 }

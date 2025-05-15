@@ -19,6 +19,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   intl: ^0.20.1
+  connectivity_plus: 
   lottie: ^3.3.1
   share_plus: ^7.0.2
   shimmer: ^3.0.0
@@ -36,3 +37,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/Lottie/Animation - 1746109624957.json
+    - assets/Lottie/Animation - 1747338928366.json
+    - assets/Lottie/images/5406715.jpg

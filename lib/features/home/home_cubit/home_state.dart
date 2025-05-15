@@ -4,6 +4,8 @@ class HomeState {}
 
 final class HomeInitial extends HomeState {}
 
+final class NoInternet extends HomeState {}
+
 final class TopHeadlinesLoading extends HomeState {}
 
 final class TopHeadlinesLoaded extends HomeState {
