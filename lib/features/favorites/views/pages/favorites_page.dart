@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:news_app/core/views/widgets/article_widget_item.dart';
 import 'package:news_app/features/favorites/cubit/favorites_cubit.dart';
 
@@ -9,6 +10,7 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoritesCubit = BlocProvider.of<FavoritesCubit>(context);
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,8 +31,21 @@ class FavoritesPage extends StatelessWidget {
             final articles = state.articles;
 
             if (articles.isEmpty) {
-              return const Center(
-                child: Text('No favorites yet!'),
+              return Center(
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Lottie.asset('assets/Lottie/Animation - 1746109624957.json',
+                        height: size.height * 0.5, width: size.width * 0.9),
+                   const SizedBox(height: 20),
+                    Text(
+                      'No Favorites Yet',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.normal,
+                          ),
+                    ),
+                  ],
+                ),
               );
             }
 

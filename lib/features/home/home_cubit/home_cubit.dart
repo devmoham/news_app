@@ -12,10 +12,29 @@ class HomeCubit extends Cubit<HomeState> {
   final homeServices = HomeServices();
   final localDatabaseHive = LocalDatabaseHive();
 
+  String selectedCategory = 'general';
+  final List<String> categories = [
+    'general',
+    'business',
+    'sports',
+    'entertainment',
+    'health',
+    'technology',
+    'science'
+  ];
+
+  void selectCategory(String category) {
+    selectedCategory = category;
+    getTobHeadlines(); // Fetch news based on new category
+  }
+
   Future<void> getTobHeadlines() async {
     emit(TopHeadlinesLoading());
     try {
-      final body = TopHeadlinesBody(category: 'sports', page: 1, pageSize: 7);
+      final body = TopHeadlinesBody(
+          category: selectedCategory == 'all' ? null : selectedCategory,
+          page: 1,
+          pageSize: 7);
       final result = await homeServices.getTopHeadlines(body);
       emit(TopHeadlinesLoaded(result.articles));
     } catch (e) {
@@ -29,7 +48,7 @@ class HomeCubit extends Cubit<HomeState> {
       final body =
           TopHeadlinesBody(category: 'business', page: 1, pageSize: 15);
       final result = await homeServices.getTopHeadlines(body);
-            final articles = result.articles ?? [];
+      final articles = result.articles ?? [];
       final favArticles = await _getFavorites();
 
       for (int i = 0; i < articles.length; i++) {

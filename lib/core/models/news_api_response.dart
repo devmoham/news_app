@@ -1,8 +1,6 @@
-
 import 'package:hive/hive.dart';
 
 part 'news_api_response.g.dart';
-
 
 class NewsApiResponse {
   String? status;
@@ -34,7 +32,7 @@ class NewsApiResponse {
 }
 
 @HiveType(typeId: 0)
-class Article extends HiveObject{
+class Article extends HiveObject {
   @HiveField(0)
   final Source? source;
   @HiveField(1)
@@ -52,9 +50,9 @@ class Article extends HiveObject{
   @HiveField(7)
   final String? content;
   @HiveField(8)
-  final bool isFavorite;
+  bool isFavorite;
 
- Article({
+  Article({
     this.source,
     this.author,
     this.title,

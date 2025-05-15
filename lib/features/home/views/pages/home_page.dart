@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app/core/utils/route/app_routes.dart';
 import 'package:news_app/core/views/widgets/app_bar_button.dart';
 import 'package:news_app/core/views/widgets/app_drawer.dart';
+import 'package:news_app/core/views/widgets/shimmer_effect_article_widget.dart';
 import 'package:news_app/features/home/home_cubit/home_cubit.dart';
 import 'package:news_app/features/home/views/widgets/custom_carousel_slider.dart';
 import 'package:news_app/features/home/views/widgets/recommendation_list_widget.dart';
+import 'package:news_app/features/home/views/widgets/shimmer_effect_carousel.dart';
 import 'package:news_app/features/home/views/widgets/title_headline_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -81,8 +83,14 @@ class _HomePageState extends State<HomePage> {
                             current is TopHeadlinesError,
                         builder: (context, state) {
                           if (state is TopHeadlinesLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator.adaptive(),
+                            return ListView.separated(
+                              itemCount: 7,
+                              scrollDirection: Axis.horizontal,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 10),
+                              itemBuilder: (_, index) {
+                                return ShimmerEffectCarouselSlider();
+                              },
                             );
                           } else if (state is TopHeadlinesLoaded) {
                             final articles = state.articles;
@@ -100,6 +108,50 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    BlocBuilder<HomeCubit, HomeState>(
+                      builder: (context, state) {
+                        final cubit = context.read<HomeCubit>();
+                        return SizedBox(
+                          height: 40,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            itemCount: cubit.categories.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 10),
+                            itemBuilder: (context, index) {
+                              final category = cubit.categories[index];
+                              final isSelected =
+                                  category == cubit.selectedCategory;
+                              return GestureDetector(
+                                onTap: () => cubit.selectCategory(category),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.blue
+                                        : Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    category[0].toUpperCase() +
+                                        category.substring(1),
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     TitleHeadlineWidget(
                       title: 'Recommendation',
                       onTap: () {},
@@ -112,8 +164,15 @@ class _HomePageState extends State<HomePage> {
                           current is RecommendedNewsError,
                       builder: (context, state) {
                         if (state is RecommendedNewsLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator.adaptive(),
+                          return ListView.separated(
+                            itemCount: 7,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 16),
+                            itemBuilder: (_, index) {
+                              return ShimmerEffectArticleWidget();
+                            },
                           );
                         } else if (state is RecommendedNewsLoaded) {
                           final articles = state.articles;
