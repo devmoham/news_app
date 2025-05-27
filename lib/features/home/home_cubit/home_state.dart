@@ -3,6 +3,7 @@ part of 'home_cubit.dart';
 class HomeState {}
 
 final class HomeInitial extends HomeState {}
+final class RecommendedNewsInitial extends HomeState {}
 
 final class NoInternet extends HomeState {}
 
@@ -30,3 +31,10 @@ final class RecommendedNewsError extends HomeState {
   final String message;
   RecommendedNewsError(this.message);
 }
+
+final class RecommendedNewsFromPaginationLoading extends HomeState {}
+final class RecommendedNewsFromPaginationFailed extends HomeState {
+  final String message;
+  RecommendedNewsFromPaginationFailed(this.message);
+}
+

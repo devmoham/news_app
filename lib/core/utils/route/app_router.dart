@@ -5,6 +5,7 @@ import 'package:news_app/core/models/news_api_response.dart';
 import 'package:news_app/core/utils/route/app_routes.dart';
 import 'package:news_app/features/favorites/cubit/favorites_cubit.dart';
 import 'package:news_app/features/favorites/views/pages/favorites_page.dart';
+import 'package:news_app/features/home/home_cubit/home_cubit.dart';
 import 'package:news_app/features/home/views/pages/article_details_page.dart';
 import 'package:news_app/features/home/views/pages/home_page.dart';
 import 'package:news_app/features/search/search_cubit/search_cubit.dart';
@@ -15,9 +16,13 @@ class AppRouter {
     switch (settings.name) {
       case AppRoutes.home:
         return CupertinoPageRoute(
-            builder: (context) => const HomePage(), settings: settings);
+            builder: (context) => BlocProvider<HomeCubit>(
+                  create: (context) => HomeCubit()..init(),
+                  child: const HomePage(),
+                ),
+            settings: settings);
 
-            case AppRoutes.favorites:
+      case AppRoutes.favorites:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
             create: (context) {
@@ -28,7 +33,7 @@ class AppRouter {
             child: const FavoritesPage(),
           ),
           settings: settings,
-        );      
+        );
 
       case AppRoutes.articleDetails:
         final article = settings.arguments as Article;
